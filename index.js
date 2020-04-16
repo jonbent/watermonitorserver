@@ -9,7 +9,7 @@ const passport = require('passport');
 const Bottle = require('./models/Bottle');
 const Filling = require('./models/Filling');
 const SocketIO = require('socket.io')
-
+const keys = require('./config/keys');
 // if (!String.prototype.trim) {
 //     String.prototype.trim = function () {
 //         return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
@@ -22,7 +22,10 @@ const options = {
 };
 
 const users = require("./routes/api/users")(options);
-const db = "mongodb://localhost:27017/waterMonitorDB";
+
+// const db = "mongodb://localhost:27017/waterMonitorDB";
+const db = keys.mongoURI;
+const devicePath = keys.devicePath;
 const cors = require('cors');
 
 const app = express();
@@ -41,7 +44,7 @@ const port = process.env.PORT || 5000;
 
 app.use("/api/users", users);
 
-const serialPort = new SerialPort('/dev/cu.usbmodem143101', {
+const serialPort = new SerialPort(devicePath, {
     baudRate: 9600
 });
 const parser = serialPort.pipe(new Readline({ delimiter: '\n' }));
