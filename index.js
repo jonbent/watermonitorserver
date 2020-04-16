@@ -70,6 +70,8 @@ const readCards = async (data) => {
         if (foundBottle) {
             User.findOne({_id: foundBottle.user}).then((user) => {
                 dogstatsd.increment('waterMonitor.userFills', ["app:waterMonitor", `user:${user.username}`] );
+                dogstatsd.increment('waterMonitor.fills', ["app:waterMonitor"])
+                dogstatsd.histogram("waterMonitor.fillSeconds", secondsFilled, ["app:waterMonitor"])
             });
 
             const newFill = new Filling({
