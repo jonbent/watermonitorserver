@@ -59,10 +59,14 @@ let timeStartedAdding;
 const readCards = async (data) => {
     const arduinoResponse = data.split(": ");
     if (arduinoResponse[0] === "start reading card") {
+        dogstatsd.event('Filling Started', `bottle uuid: ${arduinoResponse[1]} started filling`, {alertType: "info"}, {tags: ["app:waterMonitor"]})
         timeStartedAdding = new Date().getTime();
     } else if (arduinoResponse[0] === "stop reading card") {
         arduinoResponse[1] = arduinoResponse[1].trim();
         const secondsFilled = Math.round((new Date().getTime() - timeStartedAdding) / 1000);
+        dogstatsd.increment('waterMonitor.fills', ["app:waterMonitor"] )
+        dogstatsd.count("waterMonitor.fillSeconds", secondsFilled, ["app:waterMonitor"])
+        dogstatsd.event('Filling Stopped', `bottle uuid: ${arduinoResponse[1]} stopped filling after ${secondsFilled} seconds`, { alertType: "info" }, { tags: ["app:waterMonitor"] })
         const foundBottle = await Bottle.findOne({ uuid: arduinoResponse[1] })
         if (foundBottle) {
             const newFill = new Filling({
