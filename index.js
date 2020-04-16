@@ -7,6 +7,7 @@ const express = require("express");
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const Bottle = require('./models/Bottle');
+const User = require('./models/User');
 const Filling = require('./models/Filling');
 const SocketIO = require('socket.io')
 const keys = require('./config/keys');
@@ -64,11 +65,15 @@ const readCards = async (data) => {
     } else if (arduinoResponse[0] === "stop reading card") {
         arduinoResponse[1] = arduinoResponse[1].trim();
         const secondsFilled = Math.round((new Date().getTime() - timeStartedAdding) / 1000);
-        dogstatsd.increment('waterMonitor.fills', ["app:waterMonitor"] )
-        dogstatsd.count("waterMonitor.fillSeconds", secondsFilled, ["app:waterMonitor"])
         // dogstatsd.event('Filling Stopped', `bottle uuid: ${arduinoResponse[1]} stopped filling after ${secondsFilled} seconds`, { alertType: "info" }, { tags: ["app:waterMonitor"] })
         const foundBottle = await Bottle.findOne({ uuid: arduinoResponse[1] })
         if (foundBottle) {
+	  const user = await User.find({_id: foundBottle.user});
+	  console.log(user);
+          dogstatsd.increment('waterMonitor.fills', ["app:waterMonitor"] )
+          dogstatsd.increment('waterMonitor.userFills', ["app:waterMonitor", `user:${user.username}`] );
+          dogstatsd.histogram("waterMonitor.fillSeconds", secondsFilled, ["app:waterMonitor"])
+
             const newFill = new Filling({
                 bottle: foundBottle._id,
                 fillTime: secondsFilled,
