@@ -68,11 +68,11 @@ const readCards = async (data) => {
         // dogstatsd.event('Filling Stopped', `bottle uuid: ${arduinoResponse[1]} stopped filling after ${secondsFilled} seconds`, { alertType: "info" }, { tags: ["app:waterMonitor"] })
         const foundBottle = await Bottle.findOne({ uuid: arduinoResponse[1] })
         if (foundBottle) {
-	  const user = await User.find({_id: foundBottle.user});
-	  console.log(user);
-          dogstatsd.increment('waterMonitor.fills', ["app:waterMonitor"] )
-          dogstatsd.increment('waterMonitor.userFills', ["app:waterMonitor", `user:${user.username}`] );
-          dogstatsd.histogram("waterMonitor.fillSeconds", secondsFilled, ["app:waterMonitor"])
+            User.find({_id: foundBottle.user}).then((user) => {
+                dogstatsd.increment('waterMonitor.userFills', ["app:waterMonitor", `user:${user.username}`] );
+            });
+            dogstatsd.increment('waterMonitor.fills', ["app:waterMonitor"] )
+            dogstatsd.histogram("waterMonitor.fillSeconds", secondsFilled, ["app:waterMonitor"])
 
             const newFill = new Filling({
                 bottle: foundBottle._id,
