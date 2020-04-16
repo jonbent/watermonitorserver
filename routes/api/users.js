@@ -45,7 +45,6 @@ module.exports = (options) => {
         const fills = await Filling.find({
             user: req.user._id
         })
-        console.log(fills);
         return res.json({fills});
     });
 

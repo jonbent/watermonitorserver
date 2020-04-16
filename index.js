@@ -77,7 +77,9 @@ const waitForRemoval = (data) => {
     }
 }
 io.on('connection', socket => {
+    console.log('user connected')
     socket.on('addBottle', async function (userId) {
+        console.log("trying to add bottle")
         options.adding = true;
         options.curAdding = userId;
         // socket.emit('startedAdding');
@@ -89,8 +91,6 @@ io.on('connection', socket => {
         const addBottle = (data) => {
             const arduinoResponse = data.split(": ");
             if (options.adding && arduinoResponse[0] === "start reading card") {
-                // options.adding = false;
-                // options.curAdding = null;
                 arduinoResponse[1] = arduinoResponse[1].trim();
                 Bottle.findOne({uuid: arduinoResponse[1]})
                     .then(foundBottle => {
@@ -125,8 +125,6 @@ io.on('connection', socket => {
             }
         };
         parser.on('data', addBottle)
-        
-        console.log("trying to add bottle")
     })
     
     socket.on("startPullingBottles", async (userId) => {
