@@ -15,7 +15,13 @@ const keys = require('./config/keys');
 //         return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
 //     };
 // }
+const StatsD = require('node-dogstatsd').StatsD
 
+const dogstatsd = new StatsD('127.0.0.1', 8125);
+// dogstatsOptions = {
+//     'statsd_host': '127.0.0.1',
+//     'statsd_port': 8125
+// }
 const options = {
     adding: false,
     curAdding: null
@@ -77,7 +83,6 @@ const waitForRemoval = (data) => {
     }
 }
 io.on('connection', socket => {
-    console.log('user connected')
     socket.on('addBottle', async function (userId) {
         console.log("trying to add bottle")
         options.adding = true;
