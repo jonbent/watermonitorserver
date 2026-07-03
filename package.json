@@ -24,7 +24,7 @@
     "password-validator": "^5.0.3",
     "serialport": "^8.0.7",
     "socket.io": "^2.3.0",
-    "uuid": "^7.0.3",
+    "uuid": "^14.0.0",
     "validator": "^13.0.0"
   }
 }
